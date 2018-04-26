@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "187437559885",
+    "firebase_url": "https://kotlin-android-helloworld.firebaseio.com",
+    "project_id": "kotlin-android-helloworld",
+    "storage_bucket": "kotlin-android-helloworld.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:187437559885:android:f3fd4dbbfa5ea12e",
+        "android_client_info": {
+          "package_name": "com.kotlin.siddiqz.kotlin_android_helloworld"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "187437559885-lvjdr2cvt4ppoprdp8go1gv245sc8de5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kotlin.siddiqz.kotlin_android_helloworld",
+            "certificate_hash": "ba3234bdfbdc025813ce24520cd9c1ed76ac8522"
+          }
+        },
+        {
+          "client_id": "187437559885-k76hcap018eab5e517gpe7r6o8skij69.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKtnCk75k4gU9SSiUFBH-IWtVHmkmLsiY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "187437559885-k76hcap018eab5e517gpe7r6o8skij69.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
