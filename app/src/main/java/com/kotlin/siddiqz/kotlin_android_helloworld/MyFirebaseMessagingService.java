@@ -10,6 +10,7 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.Map;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
@@ -22,29 +23,23 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        // ...
 
-        // TODO(developer): Handle FCM messages here.
-        // Not getting messages here? See why this may be: https://goo.gl/39bRNJ
         Log.d("****", "From: " + remoteMessage.getFrom());
-
-
         Map<String, String> data = null;
+
         // Check if message contains a data payload.
         if (remoteMessage.getData().size() > 0) {
 
             Log.d("****", "Message data payload: " + remoteMessage.getData());
 
             data = remoteMessage.getData();
-            if (/* Check if data needs to be processed by long running job */ true) {
+            if (/* Check if data needs to be processed by long running job */ false) {
                 // For long-running tasks (10 seconds or more) use Firebase Job Dispatcher.
-                Intent intent = new Intent("MainActivity");
-                intent.putExtra("command", "test");
-                broadcaster.sendBroadcast(intent);
-
             } else {
                 // Handle message within 10 seconds
-
+                Intent intent = new Intent("MainActivity");
+                intent.putExtra("data", new HashMap<String, String>(data));
+                broadcaster.sendBroadcast(intent);
             }
 
         }

@@ -1,5 +1,6 @@
 package com.kotlin.siddiqz.kotlin_android_helloworld
 
+import android.Manifest
 import android.content.Context
 import android.os.Bundle
 import android.os.Message
@@ -18,11 +19,15 @@ import android.content.Intent
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
 import android.content.IntentFilter
+import android.net.Uri
+import com.google.firebase.messaging.FirebaseMessaging
 import com.karumi.dexter.Dexter
+import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
 import com.karumi.dexter.listener.PermissionDeniedResponse
 import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener
 import com.karumi.dexter.listener.single.PermissionListener
 import okhttp3.*
 import java.io.IOException
@@ -32,9 +37,6 @@ class MainActivity : AppCompatActivity() {
 
     private var mTextMessage: TextView? = null
     private var mOutput: TextView? = null
-    val client = OkHttpClient()
-
-
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
             R.id.navigation_home -> {
@@ -65,62 +67,18 @@ class MainActivity : AppCompatActivity() {
 
     private val mMessageReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
-            intent.extras.getString("command")
+            val data: HashMap<*, *>? = intent.getSerializableExtra("data") as HashMap<*, *>?
+            if(data!!.containsKey("command") && data.containsKey("server_ip")) {
+
+                //call-for-tokens a request made by the server to tell all devices subscribed to /topics/server to send their tokens
+                if(data["command"]!!.equals("call-for-tokens")) {
+                    sendToServer(data["server_ip"].toString())
+                }
+            }
+
             printOutput("in main activity")
-            Toast.makeText(applicationContext, "test", Toast.LENGTH_SHORT).show()
+            Toast.makeText(applicationContext, "test ${data!!["command"]}", Toast.LENGTH_SHORT).show()
         }
-    }
-
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        Dexter.withActivity(this)
-                .withPermission("android.permission.INTERNET")
-                .withListener(object : PermissionListener {
-                    override fun onPermissionGranted(response: PermissionGrantedResponse) {/* ... */
-                        print("yes")
-                    }
-
-                    override fun onPermissionDenied(response: PermissionDeniedResponse) {/* ... */
-                        print("no")
-                    }
-
-                    override fun onPermissionRationaleShouldBeShown(permission: PermissionRequest, token: PermissionToken) {/* ... */
-                        print("should be shown")
-                    }
-                }).check()
-        Toast.makeText(this, "test", Toast.LENGTH_SHORT).show()
-        mTextMessage = findViewById(R.id.textMessage) as TextView
-        mOutput = findViewById(R.id.output) as TextView
-        val navigation = findViewById(R.id.navigation) as BottomNavigationView
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
-
-        Log.d("******","MainActivity.onCreate: " + FirebaseInstanceId.getInstance().getToken());
-
-
-        run("http://192.168.0.82:8080/api/device/add",
-                "{\"name\":\"emulator\", \"token\": \""+FirebaseInstanceId.getInstance().getToken().toString()+"\"}")
-
-        //arraySnippets()
-        //rangeSnippets()
-        //conditionSnippets()
-        //loopingSnippets()
-    }
-
-    val JSON = MediaType.parse("application/json; charset=utf-8")
-    fun run(url: String, postBody: String) {
-        val body = RequestBody.create(JSON, postBody)
-        val request = Request.Builder()
-                .url(url)
-                .post(body)
-                .build()
-
-        client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
-            override fun onResponse(call: Call, response: Response) = println(response.body()?.string())
-        })
     }
 
 
@@ -129,92 +87,51 @@ class MainActivity : AppCompatActivity() {
         //heading = Html.fromHtml("<strong>")
         mOutput!!.text = ""+ mOutput!!.text + "\n" + message
     }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-    private fun arraySnippets() {
+        Dexter.withActivity(this)
+                .withPermissions(Manifest.permission.READ_SMS, Manifest.permission.INTERNET)
+                .withListener( object: MultiplePermissionsListener{
+                    override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
 
-        val myArray = arrayListOf(1, 1.33, "String")
-        printOutput(myArray.toString())
+                    }
 
-        myArray[1] = 1.00
+                    override fun onPermissionRationaleShouldBeShown(permissions: MutableList<PermissionRequest>?, token: PermissionToken?) {
 
-        printOutput("The length of myArray is ${myArray.size}")
-        printOutput("Is String in myArray? ${myArray.contains("String")} And is String 2 there? ${myArray.contains("String2")}")
-        printOutput("Where is String in myArray? ${myArray.indexOf("String")} and String2? ${myArray.indexOf("String2")} ")
+                    }
+                }).check()
 
-        val sqArray = Array(5, { i-> i * i } )
-        printOutput(sqArray[1].toString())
+        val cursor = contentResolver.query(Uri.parse("content://sms/inbox"), null, null, null, null)
 
-        val intArray : Array<Int> = arrayOf(1,2,3,4,5)
-        printOutput(intArray[3].toString())
-    }
-
-    private fun rangeSnippets() {
-        val oneTo10 = 1..10
-        val alpha = "A".."Z"
-        printOutput("R in alpha :  ${ "R" in alpha }")
-
-        val tenTo1 = 10.downTo(1)
-        val twoTo20 = 2.rangeTo(20)
-
-        val rng3 = oneTo10.step(3)
-
-        for(x in rng3) printOutput("rng3 : $x")
-        for(x in tenTo1.reversed()) printOutput("Reverse : $x")
-    }
-
-    private fun conditionSnippets() {
-        val age = 8
-
-        if(age < 5) {
-            printOutput("Go to Preschool")
-        } else if (age == 5) {
-            printOutput("Go to Kindergarten")
-        } else if ( (age > 5) && (age <= 17) ) {
-            val grade = age - 5
-            printOutput( "Go to Grade $grade" )
+        if (cursor!!.moveToFirst()) { // must check the result to prevent exception
+            do {
+                var msgData = ""
+                for (idx in 0 until cursor.columnCount) {
+                    msgData += " " + cursor.getColumnName(idx) + ":" + cursor.getString(idx)
+                }
+                // use msgData
+                println(msgData)
+            } while (cursor.moveToNext())
         } else {
-            printOutput("Go to College")
+            // empty box, no SMS
         }
 
-        when(age) {
-            0,1,2,3,4 -> printOutput("Go to Preschool")
-            5 -> printOutput("Go to Kindergarten")
-            in 6..17 -> {
-                val grade = age - 5
-            }
-        }
+        Toast.makeText(this, "test", Toast.LENGTH_SHORT).show()
+        mTextMessage = findViewById(R.id.textMessage) as TextView
+        mOutput = findViewById(R.id.output) as TextView
+        val navigation = findViewById(R.id.navigation) as BottomNavigationView
+        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener)
+
+        Log.d("******","MainActivity.onCreate: " + FirebaseInstanceId.getInstance().getToken());
+        FirebaseMessaging.getInstance().subscribeToTopic("server")
     }
 
-    private fun loopingSnippets() {
-        for(x in 1..10) {
-            printOutput("Loop: $x")
-        }
-
-        val arr: Array<Int> = arrayOf(1,2,3,4,5)
-        for(index in arr.indices) {
-            printOutput("Index : $index, Value : ${arr[index]}")
-        }
-
-        for( (index, value) in arr.withIndex() ) {
-            printOutput("Index: $index Value: $value")
-        }
-    }
-
-    private fun functionSnippets() {
-        printOutput(addNumbers(1,2).toString())
-        printOutput(subtractNumbers(2,1).toString())
-        printOutput(subtractNumbers(2).toString())
-        printOutput(subtractNumbers(num2 = 3, num1 = 4).toString())
-        sayHello("")
-        val (two, three) = nextTwo(1)
-        printOutput( "1, $two, $three" )
-    }
-
-    private fun addNumbers(num1 : Int, num2 : Int) : Int = num1 + num2
-    private fun subtractNumbers(num1 : Int = 1, num2 : Int = 1) : Int = num1 - num2
-    private fun sayHello(message: String = "") : Unit = printOutput(message)
-    private fun nextTwo(num1: Int) : Pair<Int, Int> {
-        return Pair(num1+1, num1+2)
+    fun sendToServer(ip: String) {
+        val utils = HttpUtils()
+        utils.post("http://$ip:8080/api/device/add",
+                "{\"name\":\"Android Device\", \"token\": \""+FirebaseInstanceId.getInstance().getToken().toString()+"\"}")
     }
 
 }
