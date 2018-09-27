@@ -9,7 +9,7 @@ class HttpUtils {
         val JSON = MediaType.parse("application/json; charset=utf-8")
     }
 
-    lateinit var client: OkHttpClient
+    var client: OkHttpClient
 
     init {
         client = OkHttpClient()

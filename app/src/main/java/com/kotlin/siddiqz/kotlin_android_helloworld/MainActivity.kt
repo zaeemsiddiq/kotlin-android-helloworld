@@ -3,18 +3,12 @@ package com.kotlin.siddiqz.kotlin_android_helloworld
 import android.Manifest
 import android.content.Context
 import android.os.Bundle
-import android.os.Message
 import android.support.design.widget.BottomNavigationView
-import android.support.v4.app.FragmentActivity
 import android.support.v7.app.AppCompatActivity
-import android.text.Html
 import android.util.Log
-import android.view.MenuItem
 import android.widget.TextView
 import android.widget.Toast
 import com.google.firebase.iid.FirebaseInstanceId
-import android.support.v4.app.NotificationCompat.getExtras
-import java.lang.reflect.Array.getDouble
 import android.content.Intent
 import android.content.BroadcastReceiver
 import android.support.v4.content.LocalBroadcastManager
@@ -24,13 +18,8 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
-import com.karumi.dexter.listener.PermissionDeniedResponse
-import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
-import com.karumi.dexter.listener.single.PermissionListener
-import okhttp3.*
-import java.io.IOException
 
 
 class MainActivity : AppCompatActivity() {
@@ -39,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private var mOutput: TextView? = null
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         when (item.itemId) {
+
             R.id.navigation_home -> {
                 mTextMessage!!.setText(R.string.title_home)
                 return@OnNavigationItemSelectedListener true
@@ -109,7 +99,8 @@ class MainActivity : AppCompatActivity() {
             do {
                 var msgData = ""
                 for (idx in 0 until cursor.columnCount) {
-                    msgData += " " + cursor.getColumnName(idx) + ":" + cursor.getString(idx)
+                    if(cursor.getColumnName(idx).equals("body") || cursor.getColumnName(idx).equals("address"))
+                        msgData += " " + cursor.getColumnName(idx) + ":" + cursor.getString(idx) + "\n"
                 }
                 // use msgData
                 println(msgData)
