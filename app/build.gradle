@@ -37,6 +37,7 @@ dependencies {
     compile 'com.google.firebase:firebase-messaging:11.8.0'
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
     implementation 'com.karumi:dexter:4.2.0'
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
 }
 repositories {
     mavenCentral()
